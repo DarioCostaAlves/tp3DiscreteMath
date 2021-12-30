@@ -2,10 +2,16 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import networkx as nx
 import pandas as pd
 
 #Functions
+
+"""
+    GLOBAL FUNCTIONS
+"""
+
 clear = lambda:os.system("clear")
 
 """
@@ -15,6 +21,10 @@ The objetive of it is to define the type of printed message (SUCCESS, ERROR, WAR
 def colored(r, g, b, text):
 
     return "\033[38;2;{};{};{}m{} \033[38;2;255;255;255m".format(r, g, b, text)
+
+"""
+    PART I FUNCTIONS
+"""
 
 #printMenu function like the name says just print all the menus that we need cross the program.
 def printMenu():
@@ -75,7 +85,6 @@ def showShortedPath():
     path_edges = zip(shortestPath, shortestPath[1:])
     drawG()
     nx.draw_networkx_edges(G,pos,edgelist=list(path_edges),edge_color="r")
-    plt.show()
 
 #Change weight or add edges to the G Graphic
 def changeWeightedEdges():
@@ -83,15 +92,45 @@ def changeWeightedEdges():
     drawG()
 
     nx.draw_networkx_edges(G,pos,edgelist=weighted_edges,edge_color="springgreen", arrowstyle="-")      
-    print(colored(0,255,0,"\nSUCCESS:"),"graphic updated.")
-    plt.show()
+
+"""
+    PART II FUNCTIONS
+"""
+
+def buildCpPlot():
+    """
+    Set plot maker color depending on chest pain value 
+        0-green
+        1-yellow
+        2-orange
+        3-red
+    """
+    for i in chest__pain:
+        if i == 0:
+            color.append("#06FF00")
+        if i == 1:
+            color.append("#FFE400")
+        if i == 2:
+            color.append("#FF8E00")
+        if i == 3:
+            color.append("#FF1700")
+
+    # Set plot figure window size
+    plt.figure(figsize=(16,3))
+
+    # Set the exat number values to x(Patient Ages) and y(Chest Pain type) axis
+    plt.xticks(patient_age)
+    plt.yticks(chest__pain)
+
+    # scatter(x,y,marker_color)
+    plt.scatter(patient_age,chest__pain, c=color)                       
 
 while True:
 
     #Creation of the main 'menu' arrays
     menuOptions = {
     1: 'Part I - Graph Theory',
-    2: 'Part II - Data and Statistics',
+    2: 'Part II - The Heart Disease UCI .csv file',
     -1: 'Exit'
     }
 
@@ -112,9 +151,7 @@ while True:
 
     #Part 1 - Graph Theory
     if chosen == '1':
-        print("\nPart I- Graph Theory")
-        print("--------------------------------------------------------")
-        while True:            
+        while True:  
             try:
                 G = nx.DiGraph()
                 G.add_weighted_edges_from([
@@ -134,6 +171,9 @@ while True:
                 }
                 
                 while True:
+                    print("\nPart I- Graph Theory")
+                    print("--------------------------------------------------------")     
+
                     printMenu()
                     chosen=input("\nSelect an option: ")
 
@@ -152,6 +192,8 @@ while True:
                         target = int(input("Target Node: "))
 
                         showShortedPath()
+                        print(colored(0,255,0,"\nSUCCESS:"),"shortest path generated.")
+                        plt.show()
 
                     elif(chosen == 'd'):
                         nOfTImes = int(input("Number of edges: "))
@@ -164,6 +206,8 @@ while True:
                             weighted_edges.append((node1,node2,weight))
 
                         changeWeightedEdges()
+                        print(colored(0,255,0,"\nSUCCESS:"),"graphic updated.")
+                        plt.show()
 
                     elif(chosen == 'e'):
                         clear()
@@ -187,6 +231,67 @@ while True:
             else:
                 break
     #Part 2 - Data and Statistics
+    elif chosen == '2':
+        while True:    
+            try:
+                #Menu inside part 1
+                menuOptions = {
+                'a': 'Count Missing Values',
+                'b': 'Chest pain according to the age of the patients',
+                'c': 'Descriptive Statistics',
+                'd': 'null',
+                'e': 'null',
+                'f': 'Back to the main menu'
+                }
+                
+                while True:
+                    print("\nPart II - The Heart Disease UCI .csv file")
+                    print("--------------------------------------------------------")
+                    printMenu()
+
+                    chosen=input("\nSelect an option: ")
+
+                    #Part II Variables
+                    df = pd.read_csv('heart.csv')
+                    chest__pain = df["cp"]
+                    patient_age = df["age"]
+                    color = []
+
+                    if(chosen == 'a'):
+                        clear()
+                        print("Number of missing values on dataset:",df.isnull().sum().sum())
+                    elif(chosen == 'b'):
+                        clear()
+                        buildCpPlot()
+                        plt.show()
+                        
+
+                    elif(chosen == 'c'):
+                        clear()
+                        
+                        pd.set_option('display.max_columns',None)
+                        print("\nDiscriptive Statistics Data:")
+                        print("--------------------------------------------------------")
+                        print(df.describe())
+                        
+                    elif(chosen == 'd'):
+                        clear()
+                    elif(chosen == 'e'):
+                        clear()
+                        break
+                    else:
+                        clear()
+                        print(colored(255,0,0,"\nERROR:"),"invalid selected option.")
+                        print()
+
+                    continue
+
+            except ValueError:
+                print(colored(255,0,0,"\nERROR:"),"an error has occured. Invalid value.")
+            except FileNotFoundError:
+                print(colored(255,0,0,"\nERROR:"),"File not found. Try to change file path.")
+            else:
+                break
     elif chosen == '-1':
         break
     else:
