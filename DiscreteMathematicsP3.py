@@ -3,8 +3,10 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+from matplotlib.pyplot import figure
 import networkx as nx
 import pandas as pd
+import seaborn as sns
 
 #Functions
 
@@ -125,6 +127,35 @@ def buildCpPlot():
     # scatter(x,y,marker_color)
     plt.scatter(patient_age,chest__pain, c=color)                       
 
+def buildFactPlots():
+    fig, axs = plt.subplots(2,2)
+    # plot window size
+    plt.gcf().set_size_inches(3*plt.gcf().get_size_inches())
+    
+    # plot 1 (Pie) - Heart Disease
+    axs[0,0].set_title("Heart Disease")
+    df_target = df.groupby("target").size()
+    axs[0,0].pie(df_target.values, autopct = '%1.1f%%', radius=1.1, textprops={"fontsize":12})
+    labels=["No heart disease","With heart disease"]
+    axs[0,0].legend(labels,loc="lower left")
+    labels=["Female Withoud HD", "Female With HD", "Male Without HD", "Male With HD"]
+
+    # plot 2 (Pie) - Heart Disease per Gender
+    axs[0,1].set_title("Heart Disease per Gender")
+    df_sex = df.groupby(["sex","target"]).size()
+    axs[0,1].pie(df_sex.values,  autopct='%1.1f%%', radius=1.1, textprops={"fontsize":12})
+    axs[0,1].legend(labels,loc="lower left")
+
+    # plot 3 (Bar) - Heart Disease per Gender
+    axs[1,0].set_title("Cholestrol levels per age")
+    axs[1,0].set_xlabel("Age")
+    axs[1,0].set_ylabel("Chol")
+    axs[1,0].bar(df.age, df.chol)
+    
+    # plot 3 (Heatmap) - Pairwise Correlation of all columns
+    axs[1,1].set_title("Pairwise Correlation of all columns")
+    sns.heatmap(df.corr(),ax=axs[1,1],annot=True,cmap="magma",fmt='.2f')
+   
 while True:
 
     #Creation of the main 'menu' arrays
@@ -239,8 +270,8 @@ while True:
                 'a': 'Count Missing Values',
                 'b': 'Chest pain according to the age of the patients',
                 'c': 'Descriptive Statistics',
-                'd': 'null',
-                'e': 'null',
+                'd': 'Useful information',
+                'e': 'Who used this Dataset?',
                 'f': 'Back to the main menu'
                 }
                 
@@ -252,7 +283,11 @@ while True:
                     chosen=input("\nSelect an option: ")
 
                     #Part II Variables
-                    df = pd.read_csv('heart.csv')
+                    nRowsRead = 1000
+                    df = pd.read_csv('heart.csv',delimiter=',',nrows=nRowsRead)
+                    df.dataframeName = 'heart.csv'
+                    nRow,nCol = df.shape
+
                     chest__pain = df["cp"]
                     patient_age = df["age"]
                     color = []
@@ -276,7 +311,35 @@ while True:
                         
                     elif(chosen == 'd'):
                         clear()
+
+                        # Plot Description Table Array
+                        tableInfo ={
+                            1: ['Heart Disease Pie','Ratio of people that was diagnosed with heart disease. More than 50% have this disease.'],
+                            2: ['Heart Disease Pie(Gender)','The ratio of male and female with and without heart disease. 30.7% of male with that disease, higher than female'],
+                            3: ['Cholestrol/age Plot Bar','All the ages and correspondent cholestrol'],
+                            4: ['Column Dataframe Correlation','Pairwaise correlation of all columns in the dataframe. Negative Numbers - one variable increase and the other decrease or vice versa. Positive numbers - the two variables increase or decrease. Perfect correlation (1 or -1) - it is the perfect correlation.']
+                        }
+
+                        buildFactPlots()
+                        
+                        # All Plot Details. Plot Names and its description 
+                        print("\nPlot Details","\n---------------------------------------------------")
+                        print(f'\nThere are {nRow} rows and {nCol} columns on the csv file\n\n')
+
+                        print ("{:<30} {:<50}".format('Plot Name','Description'))
+                        print ("{:<30} {:<50}".format('-----------------------------','----------------------------------------------------------'))
+
+                        # Get all keys and values of tableInfo Array and show the values
+                        for k, v in tableInfo.items():
+                            plotName, plotDesc = v
+                            print("{:<30} {:<50}".format(plotName,plotDesc))
+
+                        plt.show()
+
                     elif(chosen == 'e'):
+                        clear()
+                        break
+                    elif(chosen == 'f'):
                         clear()
                         break
                     else:
