@@ -1,12 +1,12 @@
 #--------IMPORTS--------
 import os
-import numpy as np
 import matplotlib.pyplot as plt
-import matplotlib.colors as mcolors
 from matplotlib.pyplot import figure
 import networkx as nx
 import pandas as pd
 import seaborn as sns
+import webbrowser
+
 
 #Functions
 
@@ -294,13 +294,11 @@ while True:
 
                     if(chosen == 'a'):
                         clear()
-                        print("Number of missing values on dataset:",df.isnull().sum().sum())
+                        print("Number of missing values on dataset:", df.isnull().sum().sum())
                     elif(chosen == 'b'):
                         clear()
                         buildCpPlot()
                         plt.show()
-                        
-
                     elif(chosen == 'c'):
                         clear()
                         
@@ -333,11 +331,13 @@ while True:
                         for k, v in tableInfo.items():
                             plotName, plotDesc = v
                             print("{:<30} {:<50}".format(plotName,plotDesc))
-
                         plt.show()
 
                     elif(chosen == 'e'):
                         clear()
+
+                        # show pdf with all information
+                        webbrowser.open_new('studieswheartscsv.pdf')
                         break
                     elif(chosen == 'f'):
                         clear()
@@ -346,9 +346,7 @@ while True:
                         clear()
                         print(colored(255,0,0,"\nERROR:"),"invalid selected option.")
                         print()
-
                     continue
-
             except ValueError:
                 print(colored(255,0,0,"\nERROR:"),"an error has occured. Invalid value.")
             except FileNotFoundError:
